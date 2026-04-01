@@ -141,15 +141,106 @@
 
 ---
 
-## 적용 우선순위
+---
 
-| 순위 | 패턴 | 임팩트 | 난이도 | 대상 파일 |
-|------|------|--------|--------|----------|
-| 1 | Verification Specialist | 높음 | 낮음 | `multi-agent-workflow.mdc` |
-| 2 | Dream Memory (날짜 규칙) | 중간 | 낮음 | `SESSION_HANDOFF.md` 규칙 |
-| 3 | 범위 확대 감지 | 높음 | 중간 | `multi-agent-workflow.mdc` |
-| 4 | 자율 실행 경계 | 중간 | 낮음 | `.cursorrules` |
-| 5 | Security Monitor | 높음 | 높음 | 별도 설계 필요 |
+## 6. Simplify — 구현 직후 자동 정화
+
+**출처**: `claude-code/system-prompts/skill-simplify.md`
+
+**패턴 요약**:
+- 구현 완료 후 3개 관점에서 병렬 리뷰: 코드 재사용 / 코드 품질 / 효율성
+- 재사용: 새 코드가 기존 유틸/헬퍼와 중복되지 않는가?
+- 품질: 불필요한 상태, 복붙, 파라미터 난립, 불필요한 주석
+- 효율: N+1 패턴, 놓친 병렬화, 핫패스 부하, TOCTOU 안티패턴
+
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `multi-agent-workflow.mdc` 흐름 3.5단계 "수행: 자기 정화"
+
+---
+
+## 7. Verification ≠ Testing — 검증은 테스트가 아니다
+
+**출처**: `claude-code/system-prompts/skill-verify-skill.md`
+
+**패턴 요약**:
+- 테스트(`pytest`, `npm test`)는 CI가 한다. 다시 돌리는 건 CI를 재실행한 것일 뿐.
+- 검증은 앱을 실제로 실행해서 Surface(CLI, API, UI)에서 동작을 확인하는 것.
+- "import해서 함수 호출 + console.log = 단위테스트를 새로 쓴 것, 앱을 실행한 게 아님"
+- Adversarial probe 필수: 경계값, 동시성, 멱등성 중 최소 1개
+
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `multi-agent-workflow.mdc` 파트장 검증 체크리스트 "런타임 검증" 섹션
+
+---
+
+## 8. Worker 보고 형식 표준화 + "이해 위임 금지"
+
+**출처**: `claude-code/system-prompts/agent-prompt-worker-fork-execution.md`, `system-prompt-writing-subagent-prompts.md`
+
+**패턴 요약**:
+- PM → 서브에이전트: 목적+이유+파악한것+구체적범위. "조사해서 고쳐" 금지.
+- 서브에이전트 → PM: Scope/Result/Key files/Files changed/Issues 형식, 500단어 이내
+- "Never delegate understanding" — 프롬프트가 PM의 이해를 증명해야 한다
+
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `multi-agent-workflow.mdc` "서브에이전트 보고 형식" 섹션 + "하지 말 것" 항목
+
+---
+
+## 9. Anthropic 코딩 철학 7계명
+
+**출처**: `claude-code/system-prompts/system-prompt-doing-tasks-*.md` (7개 파일), `system-prompt-output-efficiency.md`
+
+**패턴 요약**:
+1. 불필요한 추가 금지 — 버그 수정이면 버그만
+2. 조기 추상화 금지 — 비슷한 3줄이 추상화보다 낫다
+3. 호환성 해킹 금지 — 안 쓰면 삭제
+4. 불필요한 에러 처리 금지 — 경계에서만 검증
+5. 시간 예측 금지
+6. 야심찬 작업 허용
+7. 출력 최소화 — 답부터, 세 문장이면 한 문장으로
+
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `.cursorrules` "코딩 철학 (Anthropic 패턴)" 섹션
+
+---
+
+## 10. Skillify — 경험을 실행 가능한 자산으로
+
+**출처**: `claude-code/system-prompts/system-prompt-skillify-current-session.md`
+
+**패턴 요약**:
+- 반복 가능한 작업 패턴을 발견하면, "배운 것 기록"이 아닌 "실행 가능한 체크리스트"로 전환
+- learning-log: 읽기용 → SKILL.md: 실행용
+
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `.cursorrules` "learning-log → 실행 가능한 체크리스트 전환" 섹션
+
+---
+
+## 11. Conversation Summary 구조 — 유저 피드백/에러 보존
+
+**출처**: `claude-code/system-prompts/agent-prompt-conversation-summarization.md`
+
+**패턴 요약**:
+- SESSION_HANDOFF에 유저의 방향 수정 피드백 반드시 기록
+- 에러와 해결 방법을 구체적으로 기록 (파일명, 에러 메시지, 수정 내용)
+- "All user messages" — 유저의 피드백을 잃어버리지 않겠다는 원칙
+
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `.cursorrules` SESSION_HANDOFF 갱신 규칙 추가 항목
+
+---
+
+## 적용 현황
+
+| 순위 | 패턴 | 상태 | 적용일 | 대상 파일 |
+|------|------|------|--------|----------|
+| 1 | Verification Specialist | ✅ | 2026-03-29 | `multi-agent-workflow.mdc` |
+| 2 | Dream Memory | ✅ | 2026-03-29 | `.cursorrules` |
+| 3 | 범위 확대 감지 (Security Monitor) | ✅ | 2026-03-29 | `multi-agent-workflow.mdc` |
+| 4 | 자율 실행 경계 (Auto Mode) | ✅ | 2026-03-29 | `.cursorrules` |
+| 5 | 편집 패턴 비교 | — | — | 참고용 (별도 적용 불필요) |
+| 6 | Simplify 자동 정화 | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
+| 7 | Verification ≠ Testing | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
+| 8 | Worker 보고 형식 + 이해 위임 금지 | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
+| 9 | 코딩 철학 7계명 | ✅ | 2026-04-01 | `.cursorrules` |
+| 10 | Skillify | ✅ | 2026-04-01 | `.cursorrules` |
+| 11 | 유저 피드백/에러 보존 | ✅ | 2026-04-01 | `.cursorrules` |
 
 ---
 
