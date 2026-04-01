@@ -50,7 +50,7 @@
 
 - 상대 날짜("어제", "지난주") 사용 금지 → 절대 날짜(2026-03-04) 사용
 - 새 정보가 기존 항목과 모순되면, 기존 항목을 수정/삭제 (누적하지 않음)
-- "최근 작업" 섹션은 최근 5개 세션까지만 유지 (오래된 건 요약 후 아카이브)
+- "최근 작업" 섹션은 최근 5개 세션까지만 유지 (오래된 건 요약 후 삭제)
 - 인덱스 역할을 하는 "다음에 할 것" 섹션은 완료 항목 즉시 제거
 ```
 
@@ -78,7 +78,7 @@
 - Work Order에 명시되지 않은 파일은 수정하지 않는다
 - "이것도 같이 고치면 좋겠다"는 자체 판단으로 범위를 확장하지 않는다
 - 삭제/배포/환경변수 변경은 Work Order에 명시된 경우에만 수행한다
-- 확신이 없으면 파트장에게 질문한다 (추측으로 진행하지 않는다)
+- 확신이 없으면 PM에게 보고한다 (추측으로 진행하지 않는다)
 ```
 
 **적용 상태**: ✅ 적용 완료 (2026-03-29) — `multi-agent-workflow.mdc` "수행 에이전트 행동 규칙" 섹션
@@ -110,7 +110,7 @@
 
 ---
 
-## 5. Cursor vs Claude Code 편집 패턴 비교
+## Cursor vs Claude Code 편집 패턴 비교 (참고)
 
 **출처**: `cursor/Agent Prompt 2.0.txt` vs `claude-code/system-prompts/tool-description-edit.md`
 
@@ -124,7 +124,7 @@
 
 ---
 
-## 6. 서브에이전트 아키텍처 비교
+## 서브에이전트 아키텍처 비교 (참고)
 
 | 구조 | Claude Code | 우리 체계 |
 |------|-------------|----------|
@@ -133,7 +133,7 @@
 | 구현 | Task 에이전트 (generalPurpose) | 수행 에이전트 |
 | 검증 | Verification Specialist | 파트장 코드 리뷰 |
 | 배포 | Quick PR/Commit 에이전트 | PM 커밋 |
-| 감시 | Security Monitor | (없음 — 추가 고려) |
+| 감시 | Security Monitor | 수행 에이전트 행동 규칙에 내재화 |
 | 메모리 | Dream Consolidation + Session Memory | SESSION_HANDOFF.md |
 | 조율 | Coordinator Mode (미출시) | PM이 수동 조율 |
 
@@ -141,9 +141,7 @@
 
 ---
 
----
-
-## 6. Simplify — 구현 직후 자동 정화
+## 5. Simplify — 구현 직후 자동 정화
 
 **출처**: `claude-code/system-prompts/skill-simplify.md`
 
@@ -153,11 +151,11 @@
 - 품질: 불필요한 상태, 복붙, 파라미터 난립, 불필요한 주석
 - 효율: N+1 패턴, 놓친 병렬화, 핫패스 부하, TOCTOU 안티패턴
 
-**적용 상태**: ✅ 적용 완료 (2026-04-01) — `multi-agent-workflow.mdc` 흐름 3.5단계 "수행: 자기 정화"
+**적용 상태**: ✅ 적용 완료 (2026-04-01) — `multi-agent-workflow.mdc` 흐름 4단계 "수행: 자기 정화" (재사용/품질/효율 3축 적용. 원문의 N+1, TOCTOU 등은 런타임 검증 단계에서 커버)
 
 ---
 
-## 7. Verification ≠ Testing — 검증은 테스트가 아니다
+## 6. Verification ≠ Testing — 검증은 테스트가 아니다
 
 **출처**: `claude-code/system-prompts/skill-verify-skill.md`
 
@@ -171,7 +169,7 @@
 
 ---
 
-## 8. Worker 보고 형식 표준화 + "이해 위임 금지"
+## 7. Worker 보고 형식 표준화 + "이해 위임 금지"
 
 **출처**: `claude-code/system-prompts/agent-prompt-worker-fork-execution.md`, `system-prompt-writing-subagent-prompts.md`
 
@@ -184,7 +182,7 @@
 
 ---
 
-## 9. Anthropic 코딩 철학 7계명
+## 8. Anthropic 코딩 철학 7계명
 
 **출처**: `claude-code/system-prompts/system-prompt-doing-tasks-*.md` (7개 파일), `system-prompt-output-efficiency.md`
 
@@ -201,7 +199,7 @@
 
 ---
 
-## 10. Skillify — 경험을 실행 가능한 자산으로
+## 9. Skillify — 경험을 실행 가능한 자산으로
 
 **출처**: `claude-code/system-prompts/system-prompt-skillify-current-session.md`
 
@@ -213,7 +211,7 @@
 
 ---
 
-## 11. Conversation Summary 구조 — 유저 피드백/에러 보존
+## 10. Conversation Summary 구조 — 유저 피드백/에러 보존
 
 **출처**: `claude-code/system-prompts/agent-prompt-conversation-summarization.md`
 
@@ -234,13 +232,14 @@
 | 2 | Dream Memory | ✅ | 2026-03-29 | `.cursorrules` |
 | 3 | 범위 확대 감지 (Security Monitor) | ✅ | 2026-03-29 | `multi-agent-workflow.mdc` |
 | 4 | 자율 실행 경계 (Auto Mode) | ✅ | 2026-03-29 | `.cursorrules` |
-| 5 | 편집 패턴 비교 | — | — | 참고용 (별도 적용 불필요) |
-| 6 | Simplify 자동 정화 | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
-| 7 | Verification ≠ Testing | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
-| 8 | Worker 보고 형식 + 이해 위임 금지 | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
-| 9 | 코딩 철학 7계명 | ✅ | 2026-04-01 | `.cursorrules` |
-| 10 | Skillify | ✅ | 2026-04-01 | `.cursorrules` |
-| 11 | 유저 피드백/에러 보존 | ✅ | 2026-04-01 | `.cursorrules` |
+| — | 편집 패턴 비교 | — | — | 참고용 |
+| — | 서브에이전트 아키텍처 비교 | — | — | 참고용 |
+| 5 | Simplify 자동 정화 | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
+| 6 | Verification ≠ Testing | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
+| 7 | Worker 보고 형식 + 이해 위임 금지 | ✅ | 2026-04-01 | `multi-agent-workflow.mdc` |
+| 8 | 코딩 철학 7계명 | ✅ | 2026-04-01 | `.cursorrules` |
+| 9 | Skillify | ✅ | 2026-04-01 | `.cursorrules` |
+| 10 | 유저 피드백/에러 보존 | ✅ | 2026-04-01 | `.cursorrules` |
 
 ---
 
